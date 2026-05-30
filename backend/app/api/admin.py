@@ -6,6 +6,14 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
 
+from app.schemas.question import (
+    QuestionUpdate
+)
+
+from app.services.question_service import (
+    update_question
+)
+
 from app.core.roles import require_admin
 
 from app.schemas.question import (
@@ -83,3 +91,32 @@ def delete_question_route(
     return {
         "message": "Deleted"
     }
+
+@router.put(
+    "/questions/{question_id}",
+    response_model=QuestionResponse
+)
+def update_question_route(
+    question_id: str,
+    request: QuestionUpdate,
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin)
+):
+
+    question = get_question(
+        db,
+        question_id
+    )
+
+    if not question:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Question not found"
+        )
+
+    return update_question(
+        db,
+        question,
+        request
+    )

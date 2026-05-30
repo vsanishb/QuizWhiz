@@ -51,3 +51,26 @@ def delete_question(
     db.delete(question)
 
     db.commit()
+
+
+def update_question(
+    db: Session,
+    question,
+    data
+):
+
+    update_data = data.model_dump()
+
+    for key, value in update_data.items():
+
+        setattr(
+            question,
+            key,
+            value
+        )
+
+    db.commit()
+
+    db.refresh(question)
+
+    return question
