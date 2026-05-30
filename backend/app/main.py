@@ -1,5 +1,11 @@
 from fastapi import FastAPI
 from app.core.config import settings
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from fastapi import Depends
+
+from app.core.dependencies import get_db
 
 app = FastAPI(
     title="QuizWhix API",
@@ -22,4 +28,18 @@ def health():
 def config_check():
     return {
         "jwt_algorithm": settings.JWT_ALGORITHM
+    }
+
+@app.get("/db-check")
+def db_check(
+    db: Session = Depends(get_db)
+):
+
+    result = db.execute(
+        text("SELECT 1")
+    )
+
+    return {
+        "database": "connected",
+        "result": result.scalar()
     }
