@@ -1,5 +1,8 @@
 from fastapi import APIRouter
 from fastapi import Depends
+from app.services.question_service import (
+    get_unattempted_questions
+)
 
 from sqlalchemy.orm import Session
 
@@ -31,3 +34,17 @@ def questions(
 ):
 
     return get_all_questions(db)
+
+
+@router.get(
+    "/unattempted",
+    response_model=list[QuestionResponse]
+)
+def unattempted_questions(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    return get_unattempted_questions(
+        db,
+        current_user.id
+    )

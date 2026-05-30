@@ -3,19 +3,17 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-interface Props {
+interface AuthGuardProps {
   children: React.ReactNode;
 }
 
 export default function AuthGuard({
   children,
-}: Props) {
+}: AuthGuardProps) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem(
-      "token"
-    );
+    const token = localStorage.getItem("token");
 
     if (!token) {
       router.push("/login");

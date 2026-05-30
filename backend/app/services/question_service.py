@@ -74,3 +74,34 @@ def update_question(
     db.refresh(question)
 
     return question
+
+from app.models.submission import Submission
+
+def get_unattempted_questions(
+    db: Session,
+    user_id: str
+):
+    attempted_question_ids = (
+        db.query(
+            Submission.question_id
+        )
+        .filter(
+            Submission.user_id == user_id
+        )
+        .all()
+    )
+
+    attempted_question_ids = [
+        q[0]
+        for q in attempted_question_ids
+    ]
+
+    return (
+        db.query(Question)
+        .filter(
+            ~Question.id.in_(
+                attempted_question_ids
+            )
+        )
+        .all()
+    )
