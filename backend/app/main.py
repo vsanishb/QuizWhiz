@@ -7,6 +7,9 @@ from app.api.auth import router as auth_router
 
 from fastapi import Depends
 
+from app.api.admin import router as admin_router
+from app.api.questions import router as questions_router
+
 from app.core.dependencies import get_db
 
 
@@ -17,6 +20,8 @@ app = FastAPI(
 )
 
 app.include_router(auth_router)
+app.include_router(admin_router)
+app.include_router(questions_router)
 
 @app.get("/")
 def root():
