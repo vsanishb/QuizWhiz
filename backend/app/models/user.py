@@ -1,6 +1,9 @@
 from uuid import uuid4
 from datetime import datetime
 
+from sqlalchemy import Enum
+from app.models.enums import UserRole
+
 from sqlalchemy import String
 from sqlalchemy import Integer
 from sqlalchemy import DateTime
@@ -38,9 +41,9 @@ class User(Base):
         nullable=False
     )
 
-    role: Mapped[str] = mapped_column(
-        String(20),
-        default="USER"
+    role: Mapped[UserRole] = mapped_column(
+    Enum(UserRole),
+    default=UserRole.USER
     )
 
     total_score: Mapped[int] = mapped_column(

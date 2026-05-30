@@ -1,6 +1,10 @@
 from uuid import uuid4
 from datetime import datetime
 
+from sqlalchemy import Enum
+
+from app.models.enums import DifficultyLevel
+
 from sqlalchemy import String
 from sqlalchemy import Integer
 from sqlalchemy import DateTime
@@ -42,12 +46,14 @@ class Question(Base):
     )
 
     correct_option: Mapped[str] = mapped_column(
-        String(1)
-    )
+    String(1),
+    nullable=False
+)
 
-    difficulty: Mapped[str] = mapped_column(
-        String(20)
-    )
+    difficulty: Mapped[DifficultyLevel] = mapped_column(
+    Enum(DifficultyLevel),
+    nullable=False
+)
 
     points: Mapped[int] = mapped_column(
         Integer

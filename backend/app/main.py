@@ -3,15 +3,20 @@ from app.core.config import settings
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy import inspect
+from app.api.auth import router as auth_router
 
 from fastapi import Depends
 
 from app.core.dependencies import get_db
 
+
+
 app = FastAPI(
     title="QuizWhix API",
     version="1.0.0"
 )
+
+app.include_router(auth_router)
 
 @app.get("/")
 def root():
