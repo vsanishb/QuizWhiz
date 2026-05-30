@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 
 import AuthGuard from "@/components/AuthGuard";
+import Navbar from "@/components/Navbar";
+
+``
 import api from "@/lib/api";
 
 interface LeaderboardEntry {
@@ -41,6 +44,8 @@ export default function LeaderboardPage() {
 
   return (
     <AuthGuard>
+      <Navbar />
+      
       <div className="max-w-5xl mx-auto p-8">
 
         <h1 className="text-4xl font-bold mb-8">
