@@ -1,6 +1,5 @@
-# app/main.py
-
 from fastapi import FastAPI
+from app.core.config import settings
 
 app = FastAPI(
     title="QuizWhix API",
@@ -17,4 +16,10 @@ def root():
 def health():
     return {
         "status": "healthy"
+    }
+
+@app.get("/config-check")
+def config_check():
+    return {
+        "jwt_algorithm": settings.JWT_ALGORITHM
     }
