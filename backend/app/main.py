@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.core.config import settings
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from sqlalchemy import inspect
 
 from fastapi import Depends
 
@@ -42,4 +43,15 @@ def db_check(
     return {
         "database": "connected",
         "result": result.scalar()
+    }
+
+@app.get("/tables")
+def get_tables(
+    db: Session = Depends(get_db)
+):
+
+    inspector = inspect(db.bind)
+
+    return {
+        "tables": inspector.get_table_names()
     }
