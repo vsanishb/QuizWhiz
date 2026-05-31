@@ -151,7 +151,7 @@ export default function QuizPage() {
                       className={`inline-block px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest border ${
                         currentQuestion.difficulty === "EASY"
                           ? "bg-green-50 border-green-300 text-green-800"
-                          : "bg-yellow-50 border-yellow-300 text-yellow-800"
+                          : currentQuestion.difficulty === "MEDIUM"
                           ? "bg-yellow-50 border-yellow-300 text-yellow-800"
                           : "bg-red-50 border-red-300 text-red-800"
                       }`}
