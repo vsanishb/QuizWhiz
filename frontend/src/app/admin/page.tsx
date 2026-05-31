@@ -98,7 +98,7 @@ export default function AdminPage() {
       option_c: question.option_c || "",
       option_d: question.option_d || "",
       // Fallback to "A" if backend schema omits correct_option field
-      correct_option: question.correct_option || "A",
+      correct_option: (question as any).correct_option || "A",
       difficulty: question.difficulty || "EASY",
       points: question.points ?? 5,
     });
