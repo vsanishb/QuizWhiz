@@ -13,6 +13,7 @@ export default function AdminPage() {
   const router = useRouter();
 
   const [authorized, setAuthorized] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -36,8 +37,7 @@ export default function AdminPage() {
       const response = await api.get("/api/auth/me");
 
       if (response.data.role !== "ADMIN") {
-        alert("Admin access required");
-        router.replace("/dashboard");
+        setShowModal(true);
         return;
       }
 
@@ -99,10 +99,37 @@ export default function AdminPage() {
     }
   };
 
+  const handleRedirect = () => {
+    router.replace("/dashboard");
+  };
+
+  // Custom styling modal matching the podium elements in image_c347dc.png
+  if (showModal) {
+    return (
+      <div className="min-h-screen fixed inset-0 z-50 flex items-center justify-center bg-gray-900/30 backdrop-blur-sm p-4 font-sans">
+        <div className="w-full max-w-sm border border-black rounded-xl p-6 md:p-8 bg-[#fdf2e9] text-center shadow-lg transform transition-all animate-in fade-in zoom-in-95 duration-200">
+          <div className="text-4xl mb-4">🔒</div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Restricted Access
+          </h2>
+          <p className="text-[#6c757d] text-sm mt-2 leading-relaxed">
+            You do not have the required administrator privileges to view or manage content on this platform.
+          </p>
+          <button
+            onClick={handleRedirect}
+            className="w-full mt-6 bg-gray-900 text-white text-sm rounded-lg p-3 font-semibold hover:bg-black border border-black transition-all shadow-sm"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!authorized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
+        <div className="text-center p-4">
           <div className="text-4xl mb-3">🔒</div>
           <p className="text-lg text-gray-600 font-medium">
             Verifying admin access...
@@ -116,67 +143,67 @@ export default function AdminPage() {
     <AuthGuard>
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white min-h-screen font-sans">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 bg-white min-h-screen font-sans">
         {/* Header Style Match */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+        <div className="mb-6 md:mb-8 text-left">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
             Admin Dashboard
           </h1>
-          <p className="text-[#6c757d] text-base mt-2">
+          <p className="text-[#6c757d] text-sm md:text-base mt-1 md:mt-2">
             Manage quiz questions and platform content.
           </p>
         </div>
 
-        {/* Statistics - Formatted like Top Bar Stats from Leaderboard */}
-        <div className="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto pb-3 md:pb-0 mb-10 scrollbar-none snap-x">
+        {/* Statistics - Formatted like Top Bar Stats from Leaderboard, now responsive fluid rows */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-10">
           {/* Total Questions */}
-          <div className="min-w-[150px] flex-1 snap-start border border-black rounded-xl p-5 bg-[#fffdf0] text-left">
-            <p className="text-sm text-[#7f8c8d]">Total Questions</p>
-            <h2 className="text-3xl font-bold text-gray-900 mt-1">
+          <div className="border border-black rounded-xl p-4 md:p-5 bg-[#fffdf0] text-left">
+            <p className="text-xs md:text-sm text-[#7f8c8d] font-medium truncate">Total Questions</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 md:mt-1">
               {questions.length}
             </h2>
           </div>
 
           {/* Easy */}
-          <div className="min-w-[150px] flex-1 snap-start border border-black rounded-xl p-5 bg-[#f0f9eb] text-left">
-            <p className="text-sm text-[#7f8c8d]">Easy Questions</p>
-            <h2 className="text-3xl font-bold text-gray-900 mt-1">
+          <div className="border border-black rounded-xl p-4 md:p-5 bg-[#f0f9eb] text-left">
+            <p className="text-xs md:text-sm text-[#7f8c8d] font-medium truncate">Easy Questions</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 md:mt-1">
               {questions.filter((q) => q.difficulty === "EASY").length}
             </h2>
           </div>
 
           {/* Medium */}
-          <div className="min-w-[150px] flex-1 snap-start border border-black rounded-xl p-5 bg-[#f4f6f7] text-left">
-            <p className="text-sm text-[#7f8c8d]">Medium Questions</p>
-            <h2 className="text-3xl font-bold text-gray-900 mt-1">
+          <div className="border border-black rounded-xl p-4 md:p-5 bg-[#f4f6f7] text-left">
+            <p className="text-xs md:text-sm text-[#7f8c8d] font-medium truncate">Medium Questions</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 md:mt-1">
               {questions.filter((q) => q.difficulty === "MEDIUM").length}
             </h2>
           </div>
 
           {/* Hard */}
-          <div className="min-w-[150px] flex-1 snap-start border border-black rounded-xl p-5 bg-[#fdf2e9] text-left">
-            <p className="text-sm text-[#7f8c8d]">Hard Questions</p>
-            <h2 className="text-3xl font-bold text-gray-900 mt-1">
+          <div className="border border-black rounded-xl p-4 md:p-5 bg-[#fdf2e9] text-left">
+            <p className="text-xs md:text-sm text-[#7f8c8d] font-medium truncate">Hard Questions</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mt-0.5 md:mt-1">
               {questions.filter((q) => q.difficulty === "HARD").length}
             </h2>
           </div>
         </div>
 
-        {/* Main Content Layout Block */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        {/* Main Content Layout Block - Responsive stack changing to 12-column grid on desktops */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
           
           {/* Create Question Form Card */}
           <form
             onSubmit={createQuestion}
-            className="lg:col-span-5 bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
+            className="w-full lg:col-span-5 bg-white border border-gray-200 rounded-xl p-4 md:p-6 shadow-sm"
           >
-            <h2 className="text-xl font-bold text-gray-900 mb-6 pb-2 border-b border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-5 pb-2 border-b border-gray-100">
               Create Question
             </h2>
 
-            <div className="grid gap-4">
+            <div className="grid gap-3.5">
               <input
-                className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
                 placeholder="Question text"
                 value={form.question_text}
                 onChange={(e) =>
@@ -186,7 +213,7 @@ export default function AdminPage() {
               />
 
               <input
-                className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
                 placeholder="Option A"
                 value={form.option_a}
                 onChange={(e) =>
@@ -196,7 +223,7 @@ export default function AdminPage() {
               />
 
               <input
-                className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
                 placeholder="Option B"
                 value={form.option_b}
                 onChange={(e) =>
@@ -206,7 +233,7 @@ export default function AdminPage() {
               />
 
               <input
-                className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
                 placeholder="Option C"
                 value={form.option_c}
                 onChange={(e) =>
@@ -216,7 +243,7 @@ export default function AdminPage() {
               />
 
               <input
-                className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
                 placeholder="Option D"
                 value={form.option_d}
                 onChange={(e) =>
@@ -225,11 +252,11 @@ export default function AdminPage() {
                 required
               />
 
-              <div className="grid grid-cols-3 gap-3 mt-1">
+              <div className="grid grid-cols-3 gap-2 md:gap-3 mt-1">
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500 px-1">Correct</label>
+                  <label className="text-[11px] md:text-xs font-semibold text-gray-500 px-1 truncate">Correct</label>
                   <select
-                    className="border border-gray-300 bg-white rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                    className="w-full border border-gray-300 bg-white rounded-lg p-2.5 md:p-3 text-sm focus:outline-none focus:border-black transition"
                     value={form.correct_option}
                     onChange={(e) =>
                       setForm({ ...form, correct_option: e.target.value })
@@ -243,9 +270,9 @@ export default function AdminPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500 px-1">Difficulty</label>
+                  <label className="text-[11px] md:text-xs font-semibold text-gray-500 px-1 truncate">Difficulty</label>
                   <select
-                    className="border border-gray-300 bg-white rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                    className="w-full border border-gray-300 bg-white rounded-lg p-2.5 md:p-3 text-sm focus:outline-none focus:border-black transition"
                     value={form.difficulty}
                     onChange={(e) =>
                       setForm({ ...form, difficulty: e.target.value })
@@ -258,11 +285,11 @@ export default function AdminPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-xs font-semibold text-gray-500 px-1">Points</label>
+                  <label className="text-[11px] md:text-xs font-semibold text-gray-500 px-1 truncate">Points</label>
                   <input
                     type="number"
                     min={1}
-                    className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:border-black transition"
+                    className="w-full border border-gray-300 rounded-lg p-2.5 md:p-3 text-sm focus:outline-none focus:border-black transition"
                     value={form.points}
                     onChange={(e) =>
                       setForm({ ...form, points: Number(e.target.value) })
@@ -273,16 +300,16 @@ export default function AdminPage() {
 
               <button
                 disabled={loading}
-                className="mt-4 bg-gray-900 text-white text-sm rounded-lg p-3 font-semibold hover:bg-black disabled:opacity-50 transition-all shadow-sm"
+                className="w-full mt-3 bg-gray-900 text-white text-sm rounded-lg p-3 font-semibold hover:bg-black disabled:opacity-50 transition-all shadow-sm"
               >
                 {loading ? "Creating..." : "Create Question"}
               </button>
             </div>
           </form>
 
-          {/* Existing Questions List - Matching Leaderboard Podiums and Tables */}
-          <div className="lg:col-span-7">
-            <h2 className="text-xl font-bold text-gray-900 mb-5">
+          {/* Existing Questions List */}
+          <div className="w-full lg:col-span-7">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 md:mb-5">
               Existing Questions
             </h2>
 
@@ -296,7 +323,7 @@ export default function AdminPage() {
               {questions.map((question) => (
                 <div
                   key={question.id}
-                  className={`border border-black rounded-xl p-5 bg-white shadow-sm transition-all
+                  className={`border border-black rounded-xl p-4 md:p-5 bg-white shadow-sm transition-all
                     ${
                       question.difficulty === "EASY"
                         ? "bg-[#f0f9eb]/30"
@@ -307,8 +334,8 @@ export default function AdminPage() {
                   `}
                 >
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-lg text-gray-900 leading-snug">
+                    <div className="space-y-2 text-left">
+                      <h3 className="font-bold text-base md:text-lg text-gray-900 leading-snug break-words">
                         {question.question_text}
                       </h3>
 
@@ -334,10 +361,10 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    {/* Styled Gray Action Button to match clean aesthetic */}
+                    {/* Desktop & Mobile Responsive Neutral Button */}
                     <button
                       onClick={() => deleteQuestion(question.id)}
-                      className="self-end sm:self-center text-xs font-semibold border border-gray-300 text-gray-500 bg-white px-4 py-2 rounded-lg hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-all"
+                      className="w-full sm:w-auto text-center text-xs font-semibold border border-gray-300 text-gray-500 bg-white px-4 py-2 rounded-lg hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-all"
                     >
                       Delete
                     </button>
