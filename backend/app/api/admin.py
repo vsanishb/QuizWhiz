@@ -13,7 +13,7 @@ from app.core.roles import require_admin
 from app.schemas.question import (
     QuestionCreate,
     QuestionUpdate,
-    QuestionResponse,
+    AdminQuestionResponse,
 )
 
 from app.services.question_service import (
@@ -32,7 +32,7 @@ router = APIRouter(
 
 @router.post(
     "/questions",
-    response_model=QuestionResponse,
+    response_model=AdminQuestionResponse,
     status_code=status.HTTP_201_CREATED,
 )
 def create_question_route(
@@ -51,7 +51,7 @@ def create_question_route(
 
 @router.get(
     "/questions",
-    response_model=list[QuestionResponse],
+    response_model=list[AdminQuestionResponse],
 )
 def list_questions(
     admin=Depends(require_admin),
@@ -62,7 +62,7 @@ def list_questions(
 
 @router.put(
     "/questions/{question_id}",
-    response_model=QuestionResponse,
+    response_model=AdminQuestionResponse,
 )
 def update_question_route(
     question_id: str,

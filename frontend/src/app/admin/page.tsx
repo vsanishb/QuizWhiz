@@ -6,10 +6,10 @@ import AuthGuard from "@/components/AuthGuard";
 import Navbar from "@/components/Navbar";
 import api from "@/lib/api";
 
-import { Question } from "@/types/question";
+import { AdminQuestion } from "@/types/question";
 
 export default function AdminPage() {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<AdminQuestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   
@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   // State to track the question currently flagged for deletion
-  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
+  const [questionToDelete, setQuestionToDelete] = useState<AdminQuestion | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -92,23 +92,15 @@ export default function AdminPage() {
     }
   };
 
-  const startEditQuestion = (question: Question) => {
+  const startEditQuestion = (question: AdminQuestion) => {
     setEditingQuestionId(question.id);
-    
-    // Extracted target correct option variant and converted safely to uppercase
-    const dynamicCorrectOption = (
-      (question as any).correct_option || 
-      (question as any).correctOption || 
-      "A"
-    ).toString().toUpperCase();
-
     setForm({
       question_text: question.question_text || "",
       option_a: question.option_a || "",
       option_b: question.option_b || "",
       option_c: question.option_c || "",
       option_d: question.option_d || "",
-      correct_option: dynamicCorrectOption,
+      correct_option: question.correct_option || "A",
       difficulty: question.difficulty || "EASY",
       points: question.points ?? 5,
     });
