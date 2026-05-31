@@ -9,14 +9,9 @@ import Navbar from "@/components/Navbar";
 import api from "@/lib/api";
 
 export default function DashboardPage() {
-  const [user, setUser] =
-    useState<any>(null);
-
-  const [rank, setRank] =
-    useState<number | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [rank, setRank] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -24,24 +19,14 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const me =
-        await api.get(
-          "/api/auth/me"
-        );
-
-      const leaderboard =
-        await api.get(
-          "/api/leaderboard"
-        );
+      const me = await api.get("/api/auth/me");
+      const leaderboard = await api.get("/api/leaderboard");
 
       setUser(me.data);
 
-      const userRank =
-        leaderboard.data.find(
-          (entry: any) =>
-            entry.username ===
-            me.data.username
-        );
+      const userRank = leaderboard.data.find(
+        (entry: any) => entry.username === me.data.username
+      );
 
       if (userRank) {
         setRank(userRank.rank);
@@ -81,8 +66,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats Cards */}
-
-        <div className="grid grid-cols-3 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-8">
           <div className="border rounded-lg p-3 md:p-6">
             <p className="text-xs md:text-sm text-gray-500">
               Total Score
@@ -102,20 +86,9 @@ export default function DashboardPage() {
               {rank ?? "-"}
             </h2>
           </div>
-
-          <div className="border rounded-lg p-3 md:p-6">
-            <p className="text-xs md:text-sm text-gray-500">
-              Role
-            </p>
-
-            <h2 className="text-sm md:text-3xl font-bold mt-2 truncate">
-              {user.role}
-            </h2>
-          </div>
         </div>
 
         {/* Main Content */}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="border rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4">
@@ -171,16 +144,6 @@ export default function DashboardPage() {
 
                 <p className="font-medium break-all">
                   {user.email}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-sm text-gray-500">
-                  Role
-                </p>
-
-                <p className="font-medium">
-                  {user.role}
                 </p>
               </div>
             </div>

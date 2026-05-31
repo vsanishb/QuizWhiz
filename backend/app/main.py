@@ -74,34 +74,3 @@ def health():
     return {
         "status": "healthy"
     }
-
-@app.get("/config-check")
-def config_check():
-    return {
-        "jwt_algorithm": settings.JWT_ALGORITHM
-    }
-
-@app.get("/db-check")
-def db_check(
-    db: Session = Depends(get_db)
-):
-
-    result = db.execute(
-        text("SELECT 1")
-    )
-
-    return {
-        "database": "connected",
-        "result": result.scalar()
-    }
-
-@app.get("/tables")
-def get_tables(
-    db: Session = Depends(get_db)
-):
-
-    inspector = inspect(db.bind)
-
-    return {
-        "tables": inspector.get_table_names()
-    }
