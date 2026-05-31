@@ -94,14 +94,21 @@ export default function AdminPage() {
 
   const startEditQuestion = (question: Question) => {
     setEditingQuestionId(question.id);
+    
+    // Extracted target correct option variant and converted safely to uppercase
+    const dynamicCorrectOption = (
+      (question as any).correct_option || 
+      (question as any).correctOption || 
+      "A"
+    ).toString().toUpperCase();
+
     setForm({
       question_text: question.question_text || "",
       option_a: question.option_a || "",
       option_b: question.option_b || "",
       option_c: question.option_c || "",
       option_d: question.option_d || "",
-      // Fallback to "A" if backend schema omits correct_option field
-      correct_option: (question as any).correct_option || "A",
+      correct_option: dynamicCorrectOption,
       difficulty: question.difficulty || "EASY",
       points: question.points ?? 5,
     });
