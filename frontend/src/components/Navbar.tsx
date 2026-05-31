@@ -1,91 +1,347 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
 
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import Link from "next/link";
+
+import {
+  useRouter,
+  usePathname
+} from "next/navigation";
+
+import {
+  useCurrentUser
+} from "@/hooks/useCurrentUser";
 
 export default function Navbar() {
-  const router = useRouter();
-  const pathname = usePathname();
 
-  const user = useCurrentUser();
+  const router = useRouter();
+
+  const pathname =
+    usePathname();
+
+  const user =
+    useCurrentUser();
+
+  const [menuOpen,
+    setMenuOpen] =
+    useState(false);
 
   const logout = () => {
-    localStorage.removeItem("token");
-    router.push("/login");
+
+    localStorage.removeItem(
+      "token"
+    );
+
+    router.push(
+      "/login"
+    );
   };
 
-  const navItemClass = (path: string) =>
-    `px-3 py-2 rounded transition ${
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
+  const navItemClass = (
+    path: string
+  ) =>
+    `block px-4 py-3 rounded-lg transition ${
       pathname === path
         ? "bg-black text-white"
         : "hover:bg-gray-100"
     }`;
 
   return (
-    <nav className="border-b bg-white sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto flex justify-between items-center p-4">
 
-        <div className="flex items-center gap-6">
+    <>
+
+      {/* Navbar */}
+
+      <nav className="border-b bg-white sticky top-0 z-40 shadow-sm">
+
+        <div className="max-w-7xl mx-auto px-4">
+
+          <div className="flex items-center justify-between h-16">
+
+            {/* Left */}
+
+            <div className="flex items-center gap-4">
+
+              <button
+                onClick={() =>
+                  setMenuOpen(true)
+                }
+                className="
+                  md:hidden
+                  border
+                  rounded-lg
+                  px-3
+                  py-2
+                  hover:bg-gray-100
+                "
+              >
+                ☰
+              </button>
+
+              <Link
+                href="/dashboard"
+                className="
+                  font-bold
+                  text-2xl
+                "
+              >
+                QuizWhiz
+              </Link>
+
+            </div>
+
+            {/* Desktop Nav */}
+
+            <div className="hidden md:flex items-center gap-2">
+
+              <Link
+                href="/quiz"
+                className={navItemClass(
+                  "/quiz"
+                )}
+              >
+                Quiz
+              </Link>
+
+              <Link
+                href="/dashboard"
+                className={navItemClass(
+                  "/dashboard"
+                )}
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                href="/leaderboard"
+                className={navItemClass(
+                  "/leaderboard"
+                )}
+              >
+                Leaderboard
+              </Link>
+
+              {user?.role ===
+                "ADMIN" && (
+
+                <Link
+                  href="/admin"
+                  className={navItemClass(
+                    "/admin"
+                  )}
+                >
+                  Admin
+                </Link>
+
+              )}
+
+            </div>
+
+            {/* Desktop User */}
+
+            <div className="hidden md:flex items-center gap-4">
+
+              {user && (
+
+                <div className="text-right">
+
+                  <div className="font-medium">
+                    {user.username}
+                  </div>
+
+                  <div className="text-xs text-gray-500">
+
+                    {user.total_score}
+                    {" "}
+                    pts
+
+                  </div>
+
+                </div>
+
+              )}
+
+              <button
+                onClick={logout}
+                className="
+                  bg-red-500
+                  text-white
+                  px-4
+                  py-2
+                  rounded-lg
+                  hover:bg-red-600
+                "
+              >
+                Logout
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </nav>
+
+      {/* Overlay */}
+
+      <div
+        onClick={closeMenu}
+        className={`
+          fixed
+          inset-0
+          bg-black/50
+          z-40
+          transition-opacity
+          duration-300
+          ${
+            menuOpen
+              ? "opacity-100 visible"
+              : "opacity-0 invisible"
+          }
+        `}
+      />
+
+      {/* Drawer */}
+
+      <div
+        className={`
+          fixed
+          top-0
+          left-0
+          h-full
+          w-72
+          bg-white
+          z-50
+          shadow-xl
+          transition-transform
+          duration-300
+          ${
+            menuOpen
+              ? "translate-x-0"
+              : "-translate-x-full"
+          }
+        `}
+      >
+
+        {/* Header */}
+
+        <div className="p-5 border-b">
+
+          <div className="flex justify-between items-center">
+
+            <h2 className="font-bold text-2xl">
+              QuizWhiz
+            </h2>
+
+            <button
+              onClick={closeMenu}
+              className="
+                text-xl
+                hover:text-red-500
+              "
+            >
+              ✕
+            </button>
+
+          </div>
+
+        </div>
+
+        {/* User */}
+
+        {user && (
+
+          <div className="p-5 border-b bg-gray-50">
+
+            <div className="font-semibold text-lg">
+              {user.username}
+            </div>
+
+            <div className="text-sm text-gray-500">
+
+              {user.total_score}
+              {" "}
+              points
+
+            </div>
+
+            <div className="text-xs mt-2 inline-block px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+
+              {user.role}
+
+            </div>
+
+          </div>
+
+        )}
+
+        {/* Navigation */}
+
+        <div className="p-4 flex flex-col gap-2">
+
+          <Link
+            href="/quiz"
+            className={navItemClass(
+              "/quiz"
+            )}
+            onClick={closeMenu}
+          >
+             Quiz
+          </Link>
 
           <Link
             href="/dashboard"
-            className="font-bold text-xl"
+            className={navItemClass(
+              "/dashboard"
+            )}
+            onClick={closeMenu}
           >
-            QuizWhiz
+             Dashboard
           </Link>
 
-          <div className="flex gap-2">
-
-            <Link
-              href="/quiz"
-              className={navItemClass("/quiz")}
-            >
-              Quiz
-            </Link>
-
-            <Link
-              href="/dashboard"
-              className={navItemClass("/dashboard")}
-            >
-              Dashboard
-            </Link>
-
-            <Link
-              href="/leaderboard"
-              className={navItemClass("/leaderboard")}
-            >
-              Leaderboard
-            </Link>
-
-            {user?.role === "ADMIN" && (
-              <Link
-                href="/admin"
-                className={navItemClass("/admin")}
-              >
-                Admin
-              </Link>
+          <Link
+            href="/leaderboard"
+            className={navItemClass(
+              "/leaderboard"
             )}
+            onClick={closeMenu}
+          >
+             Leaderboard
+          </Link>
 
-          </div>
-        </div>
+          {user?.role ===
+            "ADMIN" && (
 
-        <div className="flex items-center gap-4">
+            <Link
+              href="/admin"
+              className={navItemClass(
+                "/admin"
+              )}
+              onClick={closeMenu}
+            >
+               Admin Panel
+            </Link>
 
-          {user && (
-            <div className="text-sm text-gray-600">
-              <span className="font-medium">
-                {user.username}
-              </span>
-              {" • "}
-              {user.total_score} pts
-            </div>
           )}
 
           <button
             onClick={logout}
-            className="border px-3 py-2 rounded hover:bg-gray-100"
+            className="
+              mt-4
+              bg-red-500
+              text-white
+              px-4
+              py-3
+              rounded-lg
+              hover:bg-red-600
+              text-left
+            "
           >
             Logout
           </button>
@@ -93,6 +349,8 @@ export default function Navbar() {
         </div>
 
       </div>
-    </nav>
+
+    </>
+
   );
 }

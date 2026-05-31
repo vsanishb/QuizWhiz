@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import AuthGuard from "@/components/AuthGuard";
-
 import Navbar from "@/components/Navbar";
+
 import api from "@/lib/api";
 
 export default function DashboardPage() {
@@ -15,71 +16,225 @@ export default function DashboardPage() {
   const [rank, setRank] =
     useState<number | null>(null);
 
+  const [loading, setLoading] =
+    useState(true);
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
 
-    const me =
-      await api.get(
-        "/api/auth/me"
-      );
+    try {
 
-    const leaderboard =
-      await api.get(
-        "/api/leaderboard"
-      );
+      const me =
+        await api.get(
+          "/api/auth/me"
+        );
 
-    setUser(me.data);
+      const leaderboard =
+        await api.get(
+          "/api/leaderboard"
+        );
 
-    const userRank =
-      leaderboard.data.find(
-        (entry: any) =>
-          entry.username ===
-          me.data.username
-      );
+      setUser(me.data);
 
-    if (userRank) {
-      setRank(userRank.rank);
+      const userRank =
+        leaderboard.data.find(
+          (entry: any) =>
+            entry.username ===
+            me.data.username
+        );
+
+      if (userRank) {
+        setRank(userRank.rank);
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+    } finally {
+
+      setLoading(false);
     }
   };
 
-  if (!user)
-    return <p>Loading...</p>;
+  if (loading) {
+
+    return (
+      <AuthGuard>
+        <Navbar />
+
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          Loading dashboard...
+        </div>
+      </AuthGuard>
+    );
+  }
 
   return (
     <AuthGuard>
-        <Navbar />
 
-      <div className="max-w-4xl mx-auto p-8">
+      <Navbar />
 
-        <h1 className="text-4xl font-bold mb-6">
-          Dashboard
-        </h1>
+      <div className="max-w-6xl mx-auto px-4 py-8">
 
-        <div className="border rounded p-6">
+        <div className="mb-8">
 
-          <h2>
-            Welcome {user.username}
+          <h1 className="text-4xl font-bold">
+            Welcome, {user.username}
+          </h1>
+
+          <p className="text-gray-500 mt-2">
+            Track your quiz performance and leaderboard position.
+          </p>
+
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+
+          <div className="border rounded-lg p-6">
+
+            <p className="text-sm text-gray-500">
+              Total Score
+            </p>
+
+            <h2 className="text-3xl font-bold mt-2">
+              {user.total_score}
+            </h2>
+
+          </div>
+
+          <div className="border rounded-lg p-6">
+
+            <p className="text-sm text-gray-500">
+              Leaderboard Rank
+            </p>
+
+            <h2 className="text-3xl font-bold mt-2">
+              {rank ?? "-"}
+            </h2>
+
+          </div>
+
+          <div className="border rounded-lg p-6">
+
+            <p className="text-sm text-gray-500">
+              Role
+            </p>
+
+            <h2 className="text-3xl font-bold mt-2">
+              {user.role}
+            </h2>
+
+          </div>
+
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <div className="border rounded-lg p-6">
+
+            <h2 className="text-xl font-semibold mb-4">
+              Quick Actions
+            </h2>
+
+            <div className="flex flex-col gap-3">
+
+              <Link
+                href="/quiz"
+                className="border rounded p-3 hover:bg-gray-50"
+              >
+                Take Quiz
+              </Link>
+
+              <Link
+                href="/leaderboard"
+                className="border rounded p-3 hover:bg-gray-50"
+              >
+                View Leaderboard
+              </Link>
+
+              {user.role === "ADMIN" && (
+                <Link
+                  href="/admin"
+                  className="border rounded p-3 hover:bg-gray-50"
+                >
+                  Admin Panel
+                </Link>
+              )}
+
+            </div>
+
+          </div>
+
+          <div className="border rounded-lg p-6">
+
+            <h2 className="text-xl font-semibold mb-4">
+              Account Information
+            </h2>
+
+            <div className="space-y-3">
+
+              <div>
+
+                <p className="text-sm text-gray-500">
+                  Username
+                </p>
+
+                <p className="font-medium">
+                  {user.username}
+                </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-sm text-gray-500">
+                  Email
+                </p>
+
+                <p className="font-medium">
+                  {user.email}
+                </p>
+
+              </div>
+
+              <div>
+
+                <p className="text-sm text-gray-500">
+                  Role
+                </p>
+
+                <p className="font-medium">
+                  {user.role}
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div className="border rounded-lg p-6 mt-6">
+
+          <h2 className="text-xl font-semibold mb-4">
+            Performance Summary
           </h2>
 
-          <p>
-            Score:
-            {" "}
-            {user.total_score}
-          </p>
-
-          <p>
-            Rank:
-            {" "}
-            {rank}
-          </p>
-
-          <p>
-            Role:
-            {" "}
-            {user.role}
+          <p className="text-gray-600">
+            You currently have{" "}
+            <strong>
+              {user.total_score}
+            </strong>{" "}
+            points and hold rank{" "}
+            <strong>
+              {rank ?? "-"}
+            </strong>{" "}
+            on the leaderboard.
           </p>
 
         </div>

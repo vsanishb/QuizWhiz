@@ -1,23 +1,18 @@
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status
+)
 
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
-
-from app.schemas.question import (
-    QuestionUpdate
-)
-
-from app.services.question_service import (
-    update_question
-)
-
 from app.core.roles import require_admin
 
 from app.schemas.question import (
     QuestionCreate,
+    QuestionUpdate,
     QuestionResponse
 )
 
@@ -25,7 +20,8 @@ from app.services.question_service import (
     create_question,
     get_all_questions,
     get_question,
-    delete_question
+    delete_question,
+    update_question
 )
 
 router = APIRouter(
@@ -36,14 +32,14 @@ router = APIRouter(
 
 @router.post(
     "/questions",
-    response_model=QuestionResponse
+    response_model=QuestionResponse,
+    status_code=status.HTTP_201_CREATED
 )
 def create_question_route(
     request: QuestionCreate,
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin)
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
-
     return create_question(
         db,
         request
@@ -55,31 +51,57 @@ def create_question_route(
     response_model=list[QuestionResponse]
 )
 def list_questions(
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin)
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
-
     return get_all_questions(db)
 
 
-@router.delete(
-    "/questions/{question_id}"
+@router.put(
+    "/questions/{question_id}",
+    response_model=QuestionResponse
 )
-def delete_question_route(
+def update_question_route(
     question_id: str,
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin)
+    request: QuestionUpdate,
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db)
 ):
-
     question = get_question(
         db,
         question_id
     )
 
     if not question:
-
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Question not found"
+        )
+
+    return update_question(
+        db,
+        question,
+        request
+    )
+
+
+@router.delete(
+    "/questions/{question_id}",
+    status_code=status.HTTP_200_OK
+)
+def delete_question_route(
+    question_id: str,
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    question = get_question(
+        db,
+        question_id
+    )
+
+    if not question:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Question not found"
         )
 
@@ -89,34 +111,6 @@ def delete_question_route(
     )
 
     return {
-        "message": "Deleted"
+        "success": True,
+        "message": "Question deleted successfully"
     }
-
-@router.put(
-    "/questions/{question_id}",
-    response_model=QuestionResponse
-)
-def update_question_route(
-    question_id: str,
-    request: QuestionUpdate,
-    db: Session = Depends(get_db),
-    admin=Depends(require_admin)
-):
-
-    question = get_question(
-        db,
-        question_id
-    )
-
-    if not question:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Question not found"
-        )
-
-    return update_question(
-        db,
-        question,
-        request
-    )
