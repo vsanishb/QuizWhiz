@@ -14,15 +14,10 @@ interface LeaderboardEntry {
 }
 
 export default function LeaderboardPage() {
+  const [leaderboard, setLeaderboard] =
+    useState<LeaderboardEntry[]>([]);
 
-  const [leaderboard,
-    setLeaderboard] =
-    useState<LeaderboardEntry[]>(
-      []
-    );
-
-  const [loading,
-    setLoading] =
+  const [loading, setLoading] =
     useState(true);
 
   useEffect(() => {
@@ -31,9 +26,7 @@ export default function LeaderboardPage() {
 
   const fetchLeaderboard =
     async () => {
-
       try {
-
         const response =
           await api.get(
             "/api/leaderboard"
@@ -42,13 +35,9 @@ export default function LeaderboardPage() {
         setLeaderboard(
           response.data
         );
-
       } catch (error) {
-
         console.error(error);
-
       } finally {
-
         setLoading(false);
       }
     };
@@ -63,15 +52,11 @@ export default function LeaderboardPage() {
     leaderboard[2];
 
   return (
-
     <AuthGuard>
-
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-
         <div className="mb-8">
-
           <h1 className="text-4xl font-bold">
             Leaderboard
           </h1>
@@ -79,256 +64,202 @@ export default function LeaderboardPage() {
           <p className="text-gray-500 mt-2">
             Top performers ranked by score.
           </p>
-
         </div>
 
         {loading && (
-
           <div className="border rounded-lg p-6">
             Loading leaderboard...
           </div>
-
-        )}
-
-        {!loading && leaderboard.length === 0 && (
-
-          <div className="border rounded-lg p-8 text-center">
-
-            <h2 className="text-2xl font-semibold mb-2">
-              No Rankings Yet
-            </h2>
-
-            <p className="text-gray-500">
-              Users will appear here after completing quizzes.
-            </p>
-
-          </div>
-
         )}
 
         {!loading &&
+          leaderboard.length === 0 && (
+            <div className="border rounded-lg p-8 text-center">
+              <h2 className="text-2xl font-semibold mb-2">
+                No Rankings Yet
+              </h2>
+
+              <p className="text-gray-500">
+                Users will appear here after
+                completing quizzes.
+              </p>
+            </div>
+          )}
+
+        {!loading &&
           leaderboard.length > 0 && (
+            <>
+              {/* Stats */}
 
-          <>
-
-            {/* Stats */}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-
-              <div className="border rounded-lg p-5 bg-yellow-50">
-
-                <p className="text-sm text-gray-500">
-                  Top Score
-                </p>
-
-                <h2 className="text-3xl font-bold">
-                  {firstPlace?.score ?? 0}
-                </h2>
-
-              </div>
-
-              <div className="border rounded-lg p-5 bg-blue-50">
-
-                <p className="text-sm text-gray-500">
-                  Total Participants
-                </p>
-
-                <h2 className="text-3xl font-bold">
-                  {leaderboard.length}
-                </h2>
-
-              </div>
-
-              <div className="border rounded-lg p-5 bg-green-50">
-
-                <p className="text-sm text-gray-500">
-                  Current Leader
-                </p>
-
-                <h2 className="text-xl font-bold">
-                  {firstPlace?.username}
-                </h2>
-
-              </div>
-
-            </div>
-
-            {/* Top 3 */}
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-
-              {secondPlace && (
-                <div className="border rounded-lg p-6 bg-gray-100">
-
-                  <div className="text-3xl mb-2">
-                    🥈
-                  </div>
-
-                  <h2 className="font-bold text-xl">
-                    {secondPlace.username}
-                  </h2>
-
-                  <p className="text-gray-600">
-                    {secondPlace.score} pts
+              <div className="grid grid-cols-3 gap-3 mb-8">
+                <div className="border rounded-lg p-3 md:p-5 bg-yellow-50">
+                  <p className="text-xs md:text-sm text-gray-500">
+                    Top Score
                   </p>
 
-                </div>
-              )}
-
-              {firstPlace && (
-                <div className="border rounded-lg p-6 bg-yellow-100">
-
-                  <div className="text-4xl mb-2">
-                    🥇
-                  </div>
-
-                  <h2 className="font-bold text-2xl">
-                    {firstPlace.username}
+                  <h2 className="text-lg md:text-3xl font-bold">
+                    {firstPlace?.score ?? 0}
                   </h2>
+                </div>
 
-                  <p className="text-gray-700">
-                    {firstPlace.score} pts
+                <div className="border rounded-lg p-3 md:p-5 bg-blue-50">
+                  <p className="text-xs md:text-sm text-gray-500">
+                    Total Participants
                   </p>
 
-                </div>
-              )}
-
-              {thirdPlace && (
-                <div className="border rounded-lg p-6 bg-orange-100">
-
-                  <div className="text-3xl mb-2">
-                    🥉
-                  </div>
-
-                  <h2 className="font-bold text-xl">
-                    {thirdPlace.username}
+                  <h2 className="text-lg md:text-3xl font-bold">
+                    {leaderboard.length}
                   </h2>
+                </div>
 
-                  <p className="text-gray-700">
-                    {thirdPlace.score} pts
+                <div className="border rounded-lg p-3 md:p-5 bg-green-50">
+                  <p className="text-xs md:text-sm text-gray-500">
+                    Current Leader
                   </p>
 
+                  <h2 className="text-sm md:text-xl font-bold truncate">
+                    {firstPlace?.username}
+                  </h2>
                 </div>
-              )}
+              </div>
 
-            </div>
+              {/* Top 3 */}
 
-            {/* Desktop Table */}
-
-            <div className="hidden md:block overflow-x-auto">
-
-              <table className="w-full border rounded-lg overflow-hidden">
-
-                <thead>
-
-                  <tr className="bg-gray-100">
-
-                    <th className="p-3 text-left">
-                      Rank
-                    </th>
-
-                    <th className="p-3 text-left">
-                      Username
-                    </th>
-
-                    <th className="p-3 text-left">
-                      Score
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {leaderboard.map(
-                    (entry) => (
-
-                      <tr
-                        key={
-                          entry.rank
-                        }
-                        className="border-t"
-                      >
-
-                        <td className="p-3 font-medium">
-
-                          {entry.rank === 1
-                            ? "🥇"
-                            : entry.rank === 2
-                            ? "🥈"
-                            : entry.rank === 3
-                            ? "🥉"
-                            : `#${entry.rank}`}
-
-                        </td>
-
-                        <td className="p-3">
-                          {entry.username}
-                        </td>
-
-                        <td className="p-3 font-semibold">
-                          {entry.score}
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-            {/* Mobile Cards */}
-
-            <div className="md:hidden flex flex-col gap-4">
-
-              {leaderboard.map(
-                (entry) => (
-
-                  <div
-                    key={entry.rank}
-                    className="border rounded-lg p-4"
-                  >
-
-                    <div className="flex justify-between items-center">
-
-                      <div>
-
-                        <h2 className="font-bold">
-                          {entry.username}
-                        </h2>
-
-                        <p className="text-gray-500">
-                          Rank #{entry.rank}
-                        </p>
-
-                      </div>
-
-                      <div className="text-xl font-bold">
-
-                        {entry.score}
-
-                      </div>
-
+              <div className="grid grid-cols-3 gap-3 mb-8">
+                {secondPlace && (
+                  <div className="border rounded-lg p-3 md:p-6 bg-gray-100 text-center">
+                    <div className="text-2xl md:text-3xl mb-1 md:mb-2">
+                      🥈
                     </div>
 
+                    <h2 className="font-bold text-sm md:text-xl truncate">
+                      {secondPlace.username}
+                    </h2>
+
+                    <p className="text-xs md:text-base text-gray-600">
+                      {secondPlace.score} pts
+                    </p>
                   </div>
+                )}
 
-                )
-              )}
+                {firstPlace && (
+                  <div className="border rounded-lg p-3 md:p-6 bg-yellow-100 text-center">
+                    <div className="text-2xl md:text-4xl mb-1 md:mb-2">
+                      🥇
+                    </div>
 
-            </div>
+                    <h2 className="font-bold text-sm md:text-2xl truncate">
+                      {firstPlace.username}
+                    </h2>
 
-          </>
+                    <p className="text-xs md:text-base text-gray-700">
+                      {firstPlace.score} pts
+                    </p>
+                  </div>
+                )}
 
-        )}
+                {thirdPlace && (
+                  <div className="border rounded-lg p-3 md:p-6 bg-orange-100 text-center">
+                    <div className="text-2xl md:text-3xl mb-1 md:mb-2">
+                      🥉
+                    </div>
 
+                    <h2 className="font-bold text-sm md:text-xl truncate">
+                      {thirdPlace.username}
+                    </h2>
+
+                    <p className="text-xs md:text-base text-gray-700">
+                      {thirdPlace.score} pts
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Table */}
+
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full border rounded-lg overflow-hidden">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="p-3 text-left">
+                        Rank
+                      </th>
+
+                      <th className="p-3 text-left">
+                        Username
+                      </th>
+
+                      <th className="p-3 text-left">
+                        Score
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {leaderboard.map(
+                      (entry) => (
+                        <tr
+                          key={
+                            entry.rank
+                          }
+                          className="border-t"
+                        >
+                          <td className="p-3 font-medium">
+                            {entry.rank === 1
+                              ? "🥇"
+                              : entry.rank === 2
+                              ? "🥈"
+                              : entry.rank === 3
+                              ? "🥉"
+                              : `#${entry.rank}`}
+                          </td>
+
+                          <td className="p-3">
+                            {entry.username}
+                          </td>
+
+                          <td className="p-3 font-semibold">
+                            {entry.score}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards */}
+
+              <div className="md:hidden flex flex-col gap-4">
+                {leaderboard.map(
+                  (entry) => (
+                    <div
+                      key={entry.rank}
+                      className="border rounded-lg p-4"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h2 className="font-bold">
+                            {entry.username}
+                          </h2>
+
+                          <p className="text-gray-500">
+                            Rank #
+                            {entry.rank}
+                          </p>
+                        </div>
+
+                        <div className="text-xl font-bold">
+                          {entry.score}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            </>
+          )}
       </div>
-
     </AuthGuard>
   );
 }
