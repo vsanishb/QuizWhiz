@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.user import User
@@ -14,7 +15,6 @@ def get_existing_submission(
     Check whether the user has already attempted
     the given question.
     """
-
     return (
         db.query(Submission)
         .filter(
@@ -42,10 +42,6 @@ def submit_answer(
     6. Return result
     """
 
-    # ----------------------------------
-    # Fetch Question
-    # ----------------------------------
-
     question = (
         db.query(Question)
         .filter(
@@ -55,13 +51,7 @@ def submit_answer(
     )
 
     if not question:
-        raise ValueError(
-            "Question not found"
-        )
-
-    # ----------------------------------
-    # Prevent Reattempt
-    # ----------------------------------
+        raise ValueError("Question not found")
 
     existing_submission = get_existing_submission(
         db=db,
@@ -70,29 +60,14 @@ def submit_answer(
     )
 
     if existing_submission:
-        raise ValueError(
-            "Question already attempted"
-        )
-
-    # ----------------------------------
-    # Evaluate Answer
-    # ----------------------------------
+        raise ValueError("Question already attempted")
 
     is_correct = (
         selected_option.upper()
-        ==
-        question.correct_option.upper()
+        == question.correct_option.upper()
     )
 
-    points_awarded = (
-        question.points
-        if is_correct
-        else 0
-    )
-
-    # ----------------------------------
-    # Create Submission Record
-    # ----------------------------------
+    points_awarded = question.points if is_correct else 0
 
     submission = Submission(
         user_id=user.id,
@@ -104,27 +79,48 @@ def submit_answer(
 
     db.add(submission)
 
-    # ----------------------------------
-    # Update User Score
-    # ----------------------------------
+    user.total_score = (user.total_score or 0) + points_awarded
 
-    user.total_score += points_awarded
-
-    # ----------------------------------
-    # Commit Transaction
-    # ----------------------------------
-
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ValueError("Could not submit answer. Please try again.") from exc
 
     db.refresh(user)
     db.refresh(submission)
-
-    # ----------------------------------
-    # Response
-    # ----------------------------------
 
     return {
         "correct": is_correct,
         "points_awarded": points_awarded,
         "total_score": user.total_score
     }
+
+
+def delete_submission(
+    db: Session,
+    submission: Submission
+):
+    """
+    Delete a submission and recalculate the user's total score
+    by subtracting the points earned from this submission.
+    """
+    try:
+        user = (
+            db.query(User)
+            .filter(User.id == submission.user_id)
+            .first()
+        )
+
+        if user:
+            user.total_score = max(
+                0,
+                (user.total_score or 0) - (submission.points_awarded or 0)
+            )
+
+        db.delete(submission)
+        db.commit()
+
+    except IntegrityError as exc:
+        db.rollback()
+        raise ValueError("Could not delete submission.") from exc

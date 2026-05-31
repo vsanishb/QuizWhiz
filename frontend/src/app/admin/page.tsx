@@ -16,6 +16,9 @@ export default function AdminPage() {
   // Custom non-blocking status notification toast
   const [notification, setNotification] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  // State to track the question currently flagged for deletion
+  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
+
   const formRef = useRef<HTMLFormElement>(null);
 
   const initialFormState = {
@@ -122,6 +125,8 @@ export default function AdminPage() {
     } catch (error: any) {
       const readableError = parseBackendError(error, "Delete failed");
       setNotification({ message: readableError, type: "error" });
+    } finally {
+      setQuestionToDelete(null);
     }
   };
 
@@ -339,7 +344,7 @@ export default function AdminPage() {
                         Edit
                       </button>
                       <button
-                        onClick={() => deleteQuestion(question.id)}
+                        onClick={() => setQuestionToDelete(question)}
                         className="flex-1 sm:flex-none text-center text-xs font-semibold border border-gray-300 text-gray-500 bg-white px-4 py-2 rounded-lg hover:bg-gray-50 hover:text-red-600 hover:border-red-200 transition-all"
                       >
                         Delete
@@ -352,6 +357,36 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {/* --- CONFIRMATION MODAL --- */}
+      {questionToDelete && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white border-2 border-black rounded-2xl p-6 max-w-sm w-full shadow-xl text-left">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              Delete Question?
+            </h3>
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed break-words">
+              Are you sure you want to delete <strong className="text-gray-800">"{questionToDelete.question_text}"</strong>? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setQuestionToDelete(null)}
+                className="text-xs font-semibold border border-gray-300 text-gray-700 bg-white px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteQuestion(questionToDelete.id)}
+                className="text-xs font-semibold bg-red-600 text-white px-4 py-2.5 rounded-lg hover:bg-red-700 transition-all shadow-sm"
+              >
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AuthGuard>
   );
 }

@@ -40,7 +40,13 @@ def create_question_route(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    return create_question(db, request)
+    try:
+        return create_question(db, request)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
 @router.get(
